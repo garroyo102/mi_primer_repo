@@ -18,23 +18,51 @@ library(read_csv2)
 ```
 
 
+
 Instrucciones:
 a. Cree un archivo Rmarkdown para resolver esta práctica programada. En el chunk de setup cargue las
 librerías que considere necesarias para resolver la práctica. Los datos para trabajar puede cargarlos con
 la función read_csv2 de readr directamente de la siguiente dirección: “https://raw.githubusercontent.
 com/isa229/programacion_analisis_datos_ii/main/netflix_info.csv” (1pto)
+
+
+
 b. Ajuste los nombres de las columnas para que estén en español. (2pts)
+
+
+
 c. Elimine filas duplicadas. (2pts)
+
+
+
 d. Elimine filas y columnas vacías. (2pts)
+
+
+
 e. Elimine la variable correspondiente al año de lanzamiento (release_year.) (2pts)
+
+
+
 f. Haga una inspección de las variables type y country para determinar si hay observaciones mal escritas o
 escritas de diferentes maneras. Si es ahí, haga la limpieza para poder homogenizar esos datos. (10pts)
+
+
+
 g. Para todas las columnas de tipo carácter, en donde haya NA, coloque “Sin información”. (4pts)
+
+
+
 h. Añada a su conjunto de datos una nueva columna llamada anyo que indique el año en que el show o
 película fue añadido a Netflix. Añada también una columna llamada mes que indique el mes en que el
 show o película fue añadido a Netflix. (6pts)
+
+
+
 Una vez que haya terminado la limpieza anterior, responda las siguientes preguntas:
 i. Cuántas películas y shows de TV hay por país? (4pts)
+
+
+
 j. Cuáles son los 10 directores con mayor cantidad de películas (sin contar shows de TV) en Netflix?
 Ordénelos por orden descendente. (4pts)
 k. Cuáles son los 10 directores con mayor cantidad de shows de TV (sin contar películas) en Netflix?
