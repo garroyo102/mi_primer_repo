@@ -20,53 +20,159 @@ library(read_csv2)
 
 
 Instrucciones:
-a. Cree un archivo Rmarkdown para resolver esta práctica programada. En el chunk de setup cargue las
-librerías que considere necesarias para resolver la práctica. Los datos para trabajar puede cargarlos con
-la función read_csv2 de readr directamente de la siguiente dirección: “https://raw.githubusercontent.
-com/isa229/programacion_analisis_datos_ii/main/netflix_info.csv” (1pto)
 
 
+a. Cree un archivo Rmarkdown para resolver esta práctica programada. 
+
+En el chunk de setup cargue laslibrerías que considere necesarias para resolver la práctica. Los datos para trabajar puede cargarlos conla función read_csv2 de readr directamente de la siguiente dirección: “https://raw.githubusercontent.com/isa229/programacion_analisis_datos_ii/main/netflix_info.csv” (1pto)
+
+```{r}
+datos_netflix <- read_csv2("https://raw.githubusercontent.com/isa229/programacion_analisis_datos_ii/main/netflix_info.csv")
+head(datos_netflix)
+```
 
 b. Ajuste los nombres de las columnas para que estén en español. (2pts)
 
+```{r}
+datos_netflix_cambioidioma  <- datos_netflix |> 
+  
+rename(
+Show_id = show_id,
+Tipo = type, 
+Titulo = title,
+Director = director,
+Pais = country,
+Fecha_agregada = date_added,
+Fecha_lanzamiento = release_year,
+Clasificacion = rating,
+Duracion = duration,
+Categorias = listed_in)
+```
 
 
 c. Elimine filas duplicadas. (2pts)
 
+```{r}
+datos_duplicados <- datos_netflix_cambioidioma |> 
+  janitor::get_dupes()
+
+datos_netflix_español <- datos_netflix_cambioidioma |> 
+  distinct()
+```
 
 
 d. Elimine filas y columnas vacías. (2pts)
 
+```{r}
+datos_netflix_filtro <- datos_netflix_español |> 
+  remove_empty(which = c("rows", "cols"))
+
+```
 
 
 e. Elimine la variable correspondiente al año de lanzamiento (release_year.) (2pts)
 
-
-
-f. Haga una inspección de las variables type y country para determinar si hay observaciones mal escritas o
-escritas de diferentes maneras. Si es ahí, haga la limpieza para poder homogenizar esos datos. (10pts)
-
-
+```{r}
+datos_netflix_sin_fechalan <- datos_netflix_filtro |> 
+  select(-Fecha_lanzamiento)
+```
 
 g. Para todas las columnas de tipo carácter, en donde haya NA, coloque “Sin información”. (4pts)
 
-
+```{r}
+datos_netflix_sin_na <- datos_netflix_sin_fechalan |> 
+  mutate_at(vars(Show_id,Tipo,Titulo,Director,Pais,Fecha_agregada,Clasificacion,Duracion,Categorias), ~ifelse(is.na(.), "Sin información", .)) 
+```
 
 h. Añada a su conjunto de datos una nueva columna llamada anyo que indique el año en que el show o
 película fue añadido a Netflix. Añada también una columna llamada mes que indique el mes en que el
 show o película fue añadido a Netflix. (6pts)
 
+```{r}
+datos_netflix_ano<- datos_netflix_sin_na |> 
+  mutate(Fecha_agregada = dmy(Fecha_agregada))
+
+datos_netflix_anyo <- datos_netflix_ano |> 
+ mutate(anyo = year(Fecha_agregada)) |> 
+ mutate(mes_nuevo = month(Fecha_agregada))
+```
+
+f. Haga una inspección de las variables type y country para determinar si hay observaciones mal escritas o
+escritas de diferentes maneras. Si es ahí, haga la limpieza para poder homogenizar esos datos. (10pts)
+
+```{r}
+datos_inspeccion <- datos_netflix_anyo |> 
+
+mutate(across(c(Tipo), function(x) ifelse(x == "movie",  "Movie", x))) |> mutate(across(c(Tipo), function(x) ifelse(x == "Movi",   "Movie", x))) |> mutate(across(c(Tipo), function(x) ifelse(x == "tv show", "TV Show", x)))|> mutate(across(c(Pais), function(x) ifelse(x == "united states",  "United States", x))) |> mutate(across(c(Pais), function(x) ifelse(x == "United State",  "United States", x))) |> mutate(across(c(Pais), function(x) ifelse(x == "india",  "India", x))) |>   mutate(across(c(Pais), function(x) ifelse(x == "pakistan",  "Pakistan", x)))|>  mutate(across(c(Pais), function(x) ifelse(x == "canada",  "Canada", x)))
+```
 
 
 Una vez que haya terminado la limpieza anterior, responda las siguientes preguntas:
+
+
 i. Cuántas películas y shows de TV hay por país? (4pts)
 
+```{r}
+total_peliculas_tvshow <- datos_inspeccion |> 
+  group_by(Tipo,Pais) |> 
+   summarise(count = n())
+```
 
 
 j. Cuáles son los 10 directores con mayor cantidad de películas (sin contar shows de TV) en Netflix?
 Ordénelos por orden descendente. (4pts)
+
+```{r}
+Total_peliculas <- datos_inspeccion |> 
+filter(Tipo == "Movie") 
+
+directores_peliculas <- Total_peliculas |> 
+  group_by(Director) |> 
+   summarise(count = n()) |> 
+  ungroup() 
+
+orden_decreciente <- directores_peliculas[order(directores_peliculas$count, decreasing = TRUE), ]
+
+Top_10_mejores_directores_de_peliculas <- orden_decreciente|> 
+  top_n(11,count) #se coloca el #11 porque el primer rango corresponde a sin informacion
+
+```
+
+
+
 k. Cuáles son los 10 directores con mayor cantidad de shows de TV (sin contar películas) en Netflix?
 Ordénelos por orden descendente. (4pts)
+
+```{r}
+shows_tv <- datos_inspeccion |> 
+filter(Tipo == "TV Show") 
+
+directores_tvshow <- shows_tv |> 
+  group_by(Director) |> 
+   summarise(count = n()) |> 
+  ungroup() |>  arrange(desc(count))
+
+orden_decreciente_tvshow <- directores_tvshow[order(directores_tvshow$count, decreasing = TRUE), ]
+
+Top_10_mejores_directores_de_show <- orden_decreciente_tvshow|>  # Se prueba con dos formulas y no hace el top
+  top_n(10,count)
+
+top_10_directores_shows <- directores_tvshow |>  # Se prueba con dos formulas y no hace el top
+   top_n(10,count)
+
+glimpse(top_10_directores_shows)
+```
+
+
 l. Obtenga la lista de películas y shows de TV que se añadieron en marzo del año 2020. Cuántos fueron?
 (4pts)
+
+```{r}
+peliculasyshows_marzo2020 <- datos_inspeccion |> 
+  filter(month(Fecha_agregada) == 3 & year(Fecha_agregada) == 2020)
+
+Total_marzo <- nrow(peliculasyshows_marzo2020) #R/ Fueron 49 entre peliculas y tvshow
+
+glimpse(Total_marzo)
+```
 
