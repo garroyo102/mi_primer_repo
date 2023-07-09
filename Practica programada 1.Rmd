@@ -145,20 +145,11 @@ Ordénelos por orden descendente. (4pts)
 shows_tv <- datos_inspeccion |> 
 filter(Tipo == "TV Show") 
 
-directores_tvshow <- shows_tv |> 
-  group_by(Director) |> 
-   summarise(count = n()) |> 
-  ungroup() |>  arrange(desc(count))
-
-orden_decreciente_tvshow <- directores_tvshow[order(directores_tvshow$count, decreasing = TRUE), ]
-
-Top_10_mejores_directores_de_show <- orden_decreciente_tvshow|>  # Se prueba con dos formulas y no hace el top
-  top_n(10,count)
-
-top_10_directores_shows <- directores_tvshow |>  # Se prueba con dos formulas y no hace el top
-   top_n(10,count)
-
-glimpse(top_10_directores_shows)
+top_10_directores_tvshow <- shows_tv |>
+  filter(Tipo=="TV Show") |>
+  count(Director, Tipo) |>
+  arrange(desc(n)) |> 
+  head(10)
 ```
 
 
