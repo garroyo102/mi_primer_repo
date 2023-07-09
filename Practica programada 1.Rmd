@@ -17,8 +17,6 @@ library(lubridate)
 library(read_csv2)
 ```
 
-
-
 Instrucciones:
 
 
@@ -171,7 +169,7 @@ l. Obtenga la lista de películas y shows de TV que se añadieron en marzo del a
 peliculasyshows_marzo2020 <- datos_inspeccion |> 
   filter(month(Fecha_agregada) == 3 & year(Fecha_agregada) == 2020)
 
-Total_marzo <- nrow(peliculasyshows_marzo2020) #R/ Fueron 49 entre peliculas y tvshow
+Total_marzo <- nrow(peliculasyshows_marzo2020) #R/ Fueron 49 entre peliculas y tvshows
 
 glimpse(Total_marzo)
 ```
